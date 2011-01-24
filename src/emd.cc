@@ -30,25 +30,41 @@ extern "C" SEXP emd_2d(SEXP sBase, SEXP sCur, SEXP sXDist, SEXP sYDist) {
   double *yDist = REAL(sYDist);
   int xl = LENGTH(sXDist);
   int yl = LENGTH(sYDist);
+  int nzb = 0, nzc = 0;
 
   if (xl != 1 && xl != n)
     Rf_error("column distance must be a vector of length one or the number of columns");
   if (yl != 1 && yl != m)
     Rf_error("row distance must be a vector of length one or the number of rows");
 
-  std::vector<location_t> location(l);
-  std::vector< std::pair<location_ptr,int> > baseweights(l);
-  std::vector< std::pair<location_ptr,int> > currentweights(l);
+  for (int i = 0; i < l; i++) {
+    if (baseVal[i] != 0.0) nzb++;
+    if (curVal[i] != 0.0) nzc++;
+  }
+
+  std::vector<location_t> baseloc(nzb);
+  std::vector<location_t> curloc(nzc);
+  std::vector< std::pair<location_ptr,int> > baseweights(nzb);
+  std::vector< std::pair<location_ptr,int> > currentweights(nzc);
 
   l = 0;
+  int bi = 0, ci = 0;
   for (int j = 0; j < n; j++)
     for (int i = 0; i < m; i++) {
-      location[l].x = (xl == 1) ? (xDist[0] * (double)j) : xDist[j];
-      location[l].y = (yl == 1) ? (yDist[0] * (double)i) : yDist[i];
-      baseweights[l].first = &location[l];
-      baseweights[l].second = (int) (baseVal[l] * 1000000);
-      currentweights[l].first = &location[l];
-      currentweights[l].second = (int) (curVal[l] * 1000000);
+      if (baseVal[l] != 0.0) {
+	baseloc[bi].x = (xl == 1) ? (xDist[0] * (double)j) : xDist[j];
+	baseloc[bi].y = (yl == 1) ? (yDist[0] * (double)i) : yDist[i];
+	baseweights[bi].first = &baseloc[bi];
+	baseweights[bi].second = (int) (baseVal[l] * 1000000);
+	bi++;
+      }
+      if (curVal[l] != 0.0) {
+	curloc[ci].x = (xl == 1) ? (xDist[0] * (double)j) : xDist[j];
+	curloc[ci].y = (yl == 1) ? (yDist[0] * (double)i) : yDist[i];
+	currentweights[ci].first = &curloc[ci];
+	currentweights[ci].second = (int) (curVal[l] * 1000000);
+	ci++;
+      }
       l++;
     }
   
