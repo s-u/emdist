@@ -207,8 +207,6 @@ template <class Label,
 	  class Map>
 void EarthMover<Label,Map>::build_lp_complete ()
 {
-  extern double dist (Label a, Label b);
-
   int rval;
   lp = QScreate_prob ("earthmover", QS_MIN);
   for (size_t i = 0; i<base.size(); ++i) {
