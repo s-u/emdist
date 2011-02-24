@@ -66,11 +66,11 @@ B <- matrix(c(0, 0, 0, 0, 0, 1), 2)
 emd2d(A, B)
 # if we bring the rows closer, the distance will be reduced
 # since mass from the first row has to move down
-emd3d(A, B,, 0.1)
+emd2d(A, B,, 0.1)
 # the positions can overlap - this is a degenerate case of that
-emd3d(A, B, rep(0, 3), rep(0, 2))
+emd2d(A, B, rep(0, 3), rep(0, 2))
 # and just a sanity check
-emd3d(A, A) + emd3d(B, B)
+emd2d(A, A) + emd2d(B, B)
 # and the weight/location code should, hopefully have the same results
 A. <- matrix(c(1:6 / sum(1:6), 1,2,1,2,1,2, 1,1,2,2,3,3), 6)
 B. <- matrix(c(1, 2, 3), 1)

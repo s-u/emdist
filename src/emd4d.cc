@@ -51,7 +51,9 @@ extern "C" SEXP emd_4d(SEXP sBase, SEXP sCur) {
     baseloc[i].a = (baseCol > 4) ? baseVal[i + 4 * baseRows] : 0.0;
     baseweights[i].first = &baseloc[i];
     baseweights[i].second = (int) (baseVal[i] * 1000000.0);
+#ifdef EMD_DEBUG
     Rprintf("A: (%g,%g,%g,%g)->%d\n", baseloc[i].x, baseloc[i].y, baseloc[i].z, baseloc[i].a, baseweights[i].second);
+#endif
   }
   for (int i = 0; i < curRows; i++) {
     curloc[i].x = curVal[i + curRows];
@@ -60,11 +62,15 @@ extern "C" SEXP emd_4d(SEXP sBase, SEXP sCur) {
     curloc[i].a = (curCol > 4) ? curVal[i + 4 * curRows] : 0.0;
     currentweights[i].first = &curloc[i];
     currentweights[i].second = (int) (curVal[i] * 1000000.0);
+#ifdef EMD_DEBUG
     Rprintf("B: (%g,%g,%g,%g)->%d\n", curloc[i].x, curloc[i].y, curloc[i].z, curloc[i].a, currentweights[i].second);
+#endif
   }
   
   double d = EM(baseweights, currentweights).distance();
+#ifdef EMD_DEBUG
   Rprintf("<A, B> = %g\n", d);
+#endif
   
   return Rf_ScalarReal(d);
 }
