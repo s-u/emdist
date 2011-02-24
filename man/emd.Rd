@@ -63,17 +63,17 @@ emd2d(A, B, xdist = 1, ydist = 1)
 \examples{
 A <- matrix(1:6 / sum(1:6), 2)
 B <- matrix(c(0, 0, 0, 0, 0, 1), 2)
-emd(A, B)
+emd2d(A, B)
 # if we bring the rows closer, the distance will be reduced
 # since mass from the first row has to move down
-emd(A, B,, 0.1)
+emd3d(A, B,, 0.1)
 # the positions can overlap - this is a degenerate case of that
-emd(A, B, rep(0, 3), rep(0, 2))
+emd3d(A, B, rep(0, 3), rep(0, 2))
 # and just a sanity check
-emd(A, A) + emd(B, B)
-# and the 3d code should, hopefully have the same results
+emd3d(A, A) + emd3d(B, B)
+# and the weight/location code should, hopefully have the same results
 A. <- matrix(c(1:6 / sum(1:6), 1,2,1,2,1,2, 1,1,2,2,3,3), 6)
 B. <- matrix(c(1, 2, 3), 1)
-stopifnot(emd3d(A., B.) == emd(A, B))
+stopifnot(emd(A., B.) == emd2d(A, B))
 }
 \keyword{multivariate}
