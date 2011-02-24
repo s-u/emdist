@@ -75,6 +75,6 @@ emd2d(A, A) + emd2d(B, B)
 A. <- matrix(c(1:6 / sum(1:6), 1,2,1,2,1,2, 1,1,2,2,3,3), 6)
 B. <- matrix(c(1, 2, 3), 1)
 stopifnot(emd(A., B.) == emd2d(A, B))
-stopifnot(emd(A., B.) == emdw(A.[,-1], A.[,1], B.[,-1], B.[,1]))
+stopifnot(emd(A., B.) == emdw(A.[,-1], A.[,1], B.[,-1,drop=FALSE], B.[,1]))
 }
 \keyword{multivariate}
