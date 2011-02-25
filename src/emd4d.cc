@@ -1,12 +1,8 @@
 #include <cmath>
 
-#include "em_api.h"
-
 typedef struct location {
   double x, y, z, a;
 } location_t, *location_ptr;
-
-typedef EarthMover<location_ptr> EM;
 
 static double dist(location_ptr a, location_ptr b)
 {
@@ -16,6 +12,10 @@ static double dist(location_ptr a, location_ptr b)
 	      (a->a - b->a)*(a->a - b->a)
 	      );
 }
+
+#include "em_api.h"
+
+typedef EarthMover<location_ptr> EM;
 
 #define R_NO_REMAP 1
 #define USE_RINTERNALS 1
