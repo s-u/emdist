@@ -2,6 +2,7 @@
     emd.c
 
     Last update: 3/14/98
+    Modified by Simon Urbanek: 2011/02/28
 
     An implementation of the Earth Movers Distance.
     Based of the solution for the Transportation problem as described in
@@ -36,7 +37,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "emd.h"
+#define EMD_RUBNER_MAIN 1
+#include "emd-rubner.h"
 
 #define DEBUG_LEVEL 0
 /*
@@ -82,8 +84,7 @@ static double _maxW;
 static float _maxC;
 
 /* DECLARATION OF FUNCTIONS */
-static float init(signature_t *Signature1, signature_t *Signature2,
-		  float (*Dist)(feature_t *, feature_t *));
+static float init(signature_t *Signature1, signature_t *Signature2);
 static void findBasicVariables(node1_t *U, node1_t *V);
 static int isOptimal(node1_t *U, node1_t *V);
 static int findLoop(node2_t **Loop);
@@ -117,9 +118,8 @@ where
               
 ******************************************************************************/
 
-float emd(signature_t *Signature1, signature_t *Signature2,
-	  float (*Dist)(feature_t *, feature_t *),
-	  flow_t *Flow, int *FlowSize)
+float emd_rubner(signature_t *Signature1, signature_t *Signature2,
+		 flow_t *Flow, int *FlowSize)
 {
   int itr;
   double totalCost;
@@ -128,7 +128,7 @@ float emd(signature_t *Signature1, signature_t *Signature2,
   flow_t *FlowP;
   node1_t U[MAX_SIG_SIZE1], V[MAX_SIG_SIZE1];
 
-  w = init(Signature1, Signature2, Dist);
+  w = init(Signature1, Signature2);
 
 #if DEBUG_LEVEL > 1
   printf("\nINITIAL SOLUTION:\n");
@@ -201,8 +201,7 @@ float emd(signature_t *Signature1, signature_t *Signature2,
 /**********************
    init
 **********************/
-static float init(signature_t *Signature1, signature_t *Signature2, 
-		  float (*Dist)(feature_t *, feature_t *))
+static float init(signature_t *Signature1, signature_t *Signature2)
 {
   int i, j;
   double sSum, dSum, diff;
@@ -430,7 +429,7 @@ static int isOptimal(node1_t *U, node1_t *V)
   int i, j, minI, minJ;
 
   /* FIND THE MINIMAL Cij-Ui-Vj OVER ALL i,j */
-  deltaMin = INFINITY;
+  deltaMin = EMD_INFINITY;
   for(i=0; i < _n1; i++)
     for(j=0; j < _n2; j++)
       if (! _IsX[i][j])
@@ -448,7 +447,7 @@ static int isOptimal(node1_t *U, node1_t *V)
   printf("deltaMin=%f\n", deltaMin);
 #endif
 
-   if (deltaMin == INFINITY)
+   if (deltaMin == EMD_INFINITY)
      {
        fprintf(stderr, "emd: Unexpected error in isOptimal.\n");
        exit(0);
@@ -494,7 +493,7 @@ static void newSol()
     steps = findLoop(Loop);
 
     /* FIND THE LARGEST VALUE IN THE LOOP */
-    xMin = INFINITY;
+    xMin = EMD_INFINITY;
     for (k=1; k < steps; k+=2)
       {
 	if (Loop[k]->val < xMin)
@@ -656,7 +655,7 @@ static void russel(double *S, double *D)
   for (i=0; i < _n1; i++)
     {
       CurU->i = i;
-      CurU->val = -INFINITY;
+      CurU->val = -EMD_INFINITY;
       CurU->Next = CurU+1;
       CurU++;
     }
@@ -666,7 +665,7 @@ static void russel(double *S, double *D)
   for (j=0; j < _n2; j++)
     {
       CurV->i = j;
-      CurV->val = -INFINITY;
+      CurV->val = -EMD_INFINITY;
       CurV->Next = CurV+1;
       CurV++;
     }
@@ -706,7 +705,7 @@ static void russel(double *S, double *D)
  
       /* FIND THE SMALLEST Delta[i][j] */
       found = 0; 
-      deltaMin = INFINITY;      
+      deltaMin = EMD_INFINITY;      
       PrevU = &uHead;
       for (CurU=uHead.Next; CurU != NULL; CurU=CurU->Next)
 	{
@@ -749,7 +748,7 @@ static void russel(double *S, double *D)
 		{
 		  /* FIND THE NEW MAXIMUM VALUE IN THE COLUMN */
 		  oldVal = CurV->val;
-		  CurV->val = -INFINITY;
+		  CurV->val = -EMD_INFINITY;
 		  for (CurU=uHead.Next; CurU != NULL; CurU=CurU->Next)
 		    {
 		      int i;
@@ -776,7 +775,7 @@ static void russel(double *S, double *D)
 		{
 		  /* FIND THE NEW MAXIMUM VALUE IN THE ROW */
 		  oldVal = CurU->val;
-		  CurU->val = -INFINITY;
+		  CurU->val = -EMD_INFINITY;
 		  for (CurV=vHead.Next; CurV != NULL; CurV=CurV->Next)
 		    {
 		      int j;

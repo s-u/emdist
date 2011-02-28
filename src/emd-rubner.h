@@ -4,6 +4,7 @@
     emd.h
 
     Last update: 3/24/98
+    Modified by Simon Urbanek: 2011/02/28
 
     An implementation of the Earth Movers Distance.
     Based of the solution for the Transportation problem as described in
@@ -38,14 +39,31 @@
 /* DEFINITIONS */
 #define MAX_SIG_SIZE   100
 #define MAX_ITERATIONS 500
-#define INFINITY       1e20
+#define EMD_INFINITY   1e20
 #define EPSILON        1e-6
 
-/*****************************************************************************/
-/* feature_t SHOULD BE MODIFIED BY THE USER TO REFLECT THE FEATURE TYPE      */
-typedef int feature_t;
-/*****************************************************************************/
+#define FDIM  4
 
+typedef struct
+{
+  float loc[FDIM];
+} feature_t;
+
+#if EMD_RUBNER_MAIN
+#include <math.h>
+
+/* we use static euclidian distance for speed */
+static float Dist(feature_t *a, feature_t *b) {
+  float d = 0.0;
+  int i = 0;
+  while (i < FDIM) {
+    float s = a->loc[i] - b->loc[i];
+    d += s * s;
+    i++;
+  }
+  return sqrtf(d);
+}
+#endif
 
 typedef struct
 {
@@ -64,8 +82,7 @@ typedef struct
 
 
 
-float emd(signature_t *Signature1, signature_t *Signature2,
-	  float (*func)(feature_t *, feature_t *),
-	  flow_t *Flow, int *FlowSize);
+float emd_rubner(signature_t *Signature1, signature_t *Signature2,
+		 flow_t *Flow, int *FlowSize);
 
 #endif

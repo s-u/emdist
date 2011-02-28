@@ -2,6 +2,7 @@
 \alias{emd}
 \alias{emd2d}
 \alias{emdw}
+\alias{emdr}
 \title{
 Earth Mover's Distance
 }
@@ -15,6 +16,7 @@ distributions over a grid represented as matrices.
 emd(A, B, ...)
 emdw(A, wA, B, wB, ...)
 emd2d(A, B, xdist = 1, ydist = 1)
+emdr(A, B, ...)
 }
 \arguments{
   \item{A}{matrix A}
@@ -35,18 +37,22 @@ emd2d(A, B, xdist = 1, ydist = 1)
   grid points in each direction is defined by \code{xdist} and
   \code{ydist}. Both matrices must have the same dimensionality.
 
-  \code{emd3d} uses first column of each matrix as the weigths and the
+  \code{emd} uses first column of each matrix as the weigths and the
   remaining columns as location coordinates in a up to four-dimensional
   space. \code{A} and \code{B} must have the same number of columns.
   
   \code{emdw} separates the weights from the location matrices but is
   otherwise identical to \code{emd}.
-
+  
   Note that in all cases the weights are transformed to integers by a
   multiplication with 1e6 since the underlying code is working on bin
   counts. The implication is that weights cannot exceed approximately
   the value of 2000 (which should have no real implications as the
   weight should sum up to one!).
+
+  \code{emdr} uses the original EMD implementation by Yossi Rubner
+  from Stanford instead of our internal code. It produces different
+  results.
 }
 \value{
   EMD of the distributions \code{A} and \code{B} (it is assumed that
