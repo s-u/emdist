@@ -40,7 +40,13 @@
 #define EMD_RUBNER_MAIN 1
 #include "emd-rubner.h"
 
+#define R_NO_REMAP 1
+#include <R_ext/Error.h>
+#include <R_ext/Print.h>
+
+#ifndef  DEBUG_LEVEL
 #define DEBUG_LEVEL 0
+#endif
 /*
  DEBUG_LEVEL:
    0 = NO MESSAGES
@@ -131,7 +137,7 @@ float emd_rubner(signature_t *Signature1, signature_t *Signature2,
   w = init(Signature1, Signature2);
 
 #if DEBUG_LEVEL > 1
-  printf("\nINITIAL SOLUTION:\n");
+  Rprintf("\nINITIAL SOLUTION:\n");
   printSolution();
 #endif
  
@@ -150,13 +156,13 @@ float emd_rubner(signature_t *Signature1, signature_t *Signature2,
 	  newSol();
 	  
 #if DEBUG_LEVEL > 1
-	  printf("\nITERATION # %d \n", itr);
+	  Rprintf("\nITERATION # %d \n", itr);
 	  printSolution();
 #endif
 	}
 
       if (itr == MAX_ITERATIONS)
-	fprintf(stderr, "emd: Maximum number of iterations has been reached (%d)\n",
+	Rf_warning("emd: Maximum number of iterations has been reached (%d)",
 		MAX_ITERATIONS);
     }
 
@@ -187,7 +193,7 @@ float emd_rubner(signature_t *Signature1, signature_t *Signature2,
     *FlowSize = FlowP-Flow;
 
 #if DEBUG_LEVEL > 0
-  printf("\n*** OPTIMAL SOLUTION (%d ITERATIONS): %f ***\n", itr, totalCost);
+  Rprintf("\n*** OPTIMAL SOLUTION (%d ITERATIONS): %f ***\n", itr, totalCost);
 #endif
 
   /* RETURN THE NORMALIZED COST == EMD */
@@ -212,10 +218,7 @@ static float init(signature_t *Signature1, signature_t *Signature2)
   _n2 = Signature2->n;
 
   if (_n1 > MAX_SIG_SIZE || _n2 > MAX_SIG_SIZE)
-    {
-      fprintf(stderr, "emd: Signature size is limited to %d\n", MAX_SIG_SIZE);
-      exit(1);
-    }
+      Rf_error("emd: Signature size is limited to %d\n", MAX_SIG_SIZE);
   
   /* COMPUTE THE DISTANCE MATRIX */
   _maxC = 0;
@@ -327,23 +330,23 @@ static void findBasicVariables(node1_t *U, node1_t *V)
     {
 
 #if DEBUG_LEVEL > 3
-      printf("UfoundNum=%d/%d,VfoundNum=%d/%d\n",UfoundNum,_n1,VfoundNum,_n2);
-      printf("U0=");
+      Rprintf("UfoundNum=%d/%d,VfoundNum=%d/%d\n",UfoundNum,_n1,VfoundNum,_n2);
+      Rprintf("U0=");
       for(CurU = u0Head.Next; CurU != NULL; CurU = CurU->Next)
-	printf("[%d]",CurU-U);
-      printf("\n");
-      printf("U1=");
+	Rprintf("[%d]",CurU-U);
+      Rprintf("\n");
+      Rprintf("U1=");
       for(CurU = u1Head.Next; CurU != NULL; CurU = CurU->Next)
-	printf("[%d]",CurU-U);
-      printf("\n");
-      printf("V0=");
+	Rprintf("[%d]",CurU-U);
+      Rprintf("\n");
+      Rprintf("V0=");
       for(CurV = v0Head.Next; CurV != NULL; CurV = CurV->Next)
-	printf("[%d]",CurV-V);
-      printf("\n");
-      printf("V1=");
+	Rprintf("[%d]",CurV-V);
+      Rprintf("\n");
+      Rprintf("V1=");
       for(CurV = v1Head.Next; CurV != NULL; CurV = CurV->Next)
-	printf("[%d]",CurV-V);
-      printf("\n\n");
+	Rprintf("[%d]",CurV-V);
+      Rprintf("\n\n");
 #endif
       
       found = 0;
@@ -408,12 +411,7 @@ static void findBasicVariables(node1_t *U, node1_t *V)
 	    }
 	}
      if (! found)
-       {
-	 fprintf(stderr, "emd: Unexpected error in findBasicVariables!\n");
-	 fprintf(stderr, "This typically happens when the EPSILON defined in\n");
-	 fprintf(stderr, "emd.h is not right for the scale of the problem.\n");
-	 exit(1);
-       }
+	 Rf_error("emd: Unexpected error in findBasicVariables!\nThis typically happens when the EPSILON defined in emd-rubner.h is not right for the scale of the problem.");
     }
 }
 
@@ -444,14 +442,11 @@ static int isOptimal(node1_t *U, node1_t *V)
 	}
 
 #if DEBUG_LEVEL > 3
-  printf("deltaMin=%f\n", deltaMin);
+  Rprintf("deltaMin=%f\n", deltaMin);
 #endif
 
    if (deltaMin == EMD_INFINITY)
-     {
-       fprintf(stderr, "emd: Unexpected error in isOptimal.\n");
-       exit(0);
-     }
+       Rf_error("emd: Unexpected error in isOptimal.");
    
    _EnterX->i = minI;
    _EnterX->j = minJ;
@@ -476,7 +471,7 @@ static void newSol()
     node2_t *Loop[2*MAX_SIG_SIZE1], *CurX, *LeaveX;
  
 #if DEBUG_LEVEL > 3
-    printf("EnterX = (%d,%d)\n", _EnterX->i, _EnterX->j);
+    Rprintf("EnterX = (%d,%d)\n", _EnterX->i, _EnterX->j);
 #endif
 
     /* ENTER THE NEW BASIC VARIABLE */
@@ -511,7 +506,7 @@ static void newSol()
       }
 
 #if DEBUG_LEVEL > 3
-    printf("LeaveX = (%d,%d)\n", LeaveX->i, LeaveX->j);
+    Rprintf("LeaveX = (%d,%d)\n", LeaveX->i, LeaveX->j);
 #endif
 
     /* REMOVE THE LEAVING BASIC VARIABLE */
@@ -586,7 +581,7 @@ static int findLoop(node2_t **Loop)
 	 IsUsed[NewX-_X] = 1;
 	 steps++;
 #if DEBUG_LEVEL > 3
-	 printf("steps=%d, NewX=(%d,%d)\n", steps, NewX->i, NewX->j);    
+	 Rprintf("steps=%d, NewX=(%d,%d)\n", steps, NewX->i, NewX->j);    
 #endif
        }
      else  /* DIDN'T FIND THE NEXT X */
@@ -612,7 +607,7 @@ static int findLoop(node2_t **Loop)
 	 } while (NewX == NULL && CurX >= Loop);
 	 
 #if DEBUG_LEVEL > 3
-	 printf("BACKTRACKING TO: steps=%d, NewX=(%d,%d)\n",
+	 Rprintf("BACKTRACKING TO: steps=%d, NewX=(%d,%d)\n",
 		steps, NewX->i, NewX->j);    
 #endif
            IsUsed[*CurX-_X] = 0;
@@ -622,14 +617,11 @@ static int findLoop(node2_t **Loop)
     } while(CurX >= Loop);
   
   if (CurX == Loop)
-    {
-      fprintf(stderr, "emd: Unexpected error in findLoop!\n");
-      exit(1);
-    }
+    Rf_error("emd: Unexpected error in findLoop!");
 #if DEBUG_LEVEL > 3
-  printf("FOUND LOOP:\n");
+  Rprintf("FOUND LOOP:\n");
   for (i=0; i < steps; i++)
-    printf("%d: (%d,%d)\n", i, Loop[i]->i, Loop[i]->j);
+    Rprintf("%d: (%d,%d)\n", i, Loop[i]->i, Loop[i]->j);
 #endif
 
   return steps;
@@ -692,15 +684,15 @@ static void russel(double *S, double *D)
   do
     {
 #if DEBUG_LEVEL > 3
-      printf("Ur=");
+      Rprintf("Ur=");
       for(CurU = uHead.Next; CurU != NULL; CurU = CurU->Next)
-	printf("[%d]",CurU-Ur);
-      printf("\n");
-      printf("Vr=");
+	Rprintf("[%d]",CurU-Ur);
+      Rprintf("\n");
+      Rprintf("Vr=");
       for(CurV = vHead.Next; CurV != NULL; CurV = CurV->Next)
-	printf("[%d]",CurV-Vr);
-      printf("\n");
-      printf("\n\n");
+	Rprintf("[%d]",CurV-Vr);
+      Rprintf("\n");
+      Rprintf("\n\n");
 #endif
  
       /* FIND THE SMALLEST Delta[i][j] */
@@ -860,18 +852,16 @@ static void printSolution()
   totalCost = 0;
 
 #if DEBUG_LEVEL > 2
-  printf("SIG1\tSIG2\tFLOW\tCOST\n");
+  Rprintf("SIG1\tSIG2\tFLOW\tCOST\n");
 #endif
   for(P=_X; P < _EndX; P++)
     if (P != _EnterX && _IsX[P->i][P->j])
       {
 #if DEBUG_LEVEL > 2
-	printf("%d\t%d\t%f\t%f\n", P->i, P->j, P->val, _C[P->i][P->j]);
+	Rprintf("%d\t%d\t%f\t%f\n", P->i, P->j, P->val, _C[P->i][P->j]);
 #endif
 	totalCost += (double)P->val * _C[P->i][P->j];
       }
 
-  printf("COST = %f\n", totalCost);
+  Rprintf("COST = %f\n", totalCost);
 }
-
-

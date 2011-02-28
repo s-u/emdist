@@ -28,23 +28,21 @@ SEXP emd_r(SEXP sBase, SEXP sCur) {
   signature_t baseSig, curSig;
   
   baseSig.n = baseRows;
-  baseSig.Features = calloc(baseRows, sizeof(signature_t));
-  baseSig.Weights  = calloc(baseRows, sizeof(float));
+  baseSig.Features = (feature_t*) R_alloc(baseRows, sizeof(feature_t));
+  baseSig.Weights  = (float*) R_alloc(baseRows, sizeof(float));
   curSig.n = curRows;
-  curSig.Features = calloc(curRows, sizeof(signature_t));
-  curSig.Weights  = calloc(curRows, sizeof(float));
+  curSig.Features = (feature_t*) R_alloc(curRows, sizeof(feature_t));
+  curSig.Weights  = (float*) R_alloc(curRows, sizeof(float));
 
   int i, j;
   for (i = 0; i < baseRows; i++) {
-    for (j = 0; j < baseCol; j++)
-      if (j < FDIM)
-	baseSig.Features[i].loc[j] = baseVal[i + (j + 1) * baseRows];
+    for (j = 0; j < FDIM; j++)
+      baseSig.Features[i].loc[j] = (j + 1 < baseCol) ? baseVal[i + (j + 1) * baseRows] : 0.0;
     baseSig.Weights[i] = baseVal[i];
   }
   for (i = 0; i < curRows; i++) {
-    for (j = 0; j < curCol; j++)
-      if (j < FDIM)
-	curSig.Features[i].loc[j] = curVal[i + (j + 1) * curRows];
+    for (j = 0; j < FDIM; j++)
+      curSig.Features[i].loc[j] = (j + 1 < curCol) ? curVal[i + (j + 1) * curRows] : 0.0;
     curSig.Weights[i] = curVal[i];
   }
   
