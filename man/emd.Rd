@@ -52,7 +52,9 @@ emdr(A, B, ...)
 
   \code{emdr} uses the original EMD implementation by Yossi Rubner
   from Stanford instead of our internal code. It produces different
-  results.
+  results for non-normalized signatures and also uses floats instead
+  doubles so expect some deviations from \code{emd} even for normalized
+  signatures.
 }
 \value{
   EMD of the distributions \code{A} and \code{B} (it is assumed that
@@ -63,6 +65,7 @@ emdr(A, B, ...)
 \author{
   R code by Simon Urbanek, EMD code by Shankar Krishnan,
   solver by David Applegate.
+  Code behind \code{emdr} by Yossi Rubner.
 }
 %\note{
 %}
