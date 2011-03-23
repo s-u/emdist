@@ -1,8 +1,8 @@
 Package: emd
-Version: 0.1-1
-Title: Earth mover's distance
-Author: Simon Urbanek <urbanek@research.att.com>, Shankar Krishnan <krishnas@research.att.com>, David Applegate <david@research.att.com>
+Version: 0.2-1
+Title: Earth Mover's Distance
+Author: Simon Urbanek <urbanek@research.att.com>, Yossi Rubner
 Maintainer: Simon Urbanek <simon.urbanek@r-project.org>
-Description: Package providing calculation of earth mover's distance.
-License: AT&T Proprietary, for AT&T internal use only
+Description: Package providing calculation of Earth Mover's Distance (EMD).
+License: MIT
 URL: http://www.rforge.net/emd

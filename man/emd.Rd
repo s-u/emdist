@@ -60,15 +60,13 @@ emdr(A, B, ...)
   EMD of the distributions \code{A} and \code{B} (it is assumed that
   each have the sum of 1).
 }
-%\references{
-%}
 \author{
-  R code by Simon Urbanek, EMD code by Shankar Krishnan,
-  solver by David Applegate.
-  Code behind \code{emdr} by Yossi Rubner.
+  R code by Simon Urbanek, EMD code by Yossi Rubner.
 }
-%\note{
-%}
+\note{
+  This is an open-source version of the package which contains only the
+  implementation by Yossi Rubner.
+}
 \examples{
 A <- matrix(1:6 / sum(1:6), 2)
 B <- matrix(c(0, 0, 0, 0, 0, 1), 2)

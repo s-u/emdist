@@ -640,7 +640,7 @@ static void russel(double *S, double *D)
   node1_t Ur[MAX_SIG_SIZE1], Vr[MAX_SIG_SIZE1];
   node1_t uHead, *CurU, *PrevU;
   node1_t vHead, *CurV, *PrevV;
-  node1_t *PrevUMinI, *PrevVMinJ, *Remember;
+  node1_t *PrevUMinI = PrevUMinI, *PrevVMinJ, *Remember;
 
   /* INITIALIZE THE ROWS LIST (Ur), AND THE COLUMNS LIST (Vr) */
   uHead.Next = CurU = Ur;
@@ -838,8 +838,7 @@ static void addBasicVariable(int minI, int minJ, double *S, double *D,
 }
 
 
-
-
+#if DEBUG_LEVEL > 0
 
 /**********************
     printSolution
@@ -865,3 +864,4 @@ static void printSolution()
 
   Rprintf("COST = %f\n", totalCost);
 }
+#endif
