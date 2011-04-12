@@ -7,7 +7,7 @@
 #define USE_RINTERNALS 1
 #include <Rinternals.h>
 
-SEXP emd_r(SEXP sBase, SEXP sCur) {
+SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows) {
   SEXP sBaseDim = Rf_getAttrib(sBase, R_DimSymbol);
   SEXP sCurDim = Rf_getAttrib(sCur, R_DimSymbol);
   if (sBaseDim == R_NilValue || LENGTH(sBaseDim) != 2) Rf_error("base must be a matrix");
@@ -46,7 +46,7 @@ SEXP emd_r(SEXP sBase, SEXP sCur) {
     curSig.Weights[i] = curVal[i];
   }
   
-  double d = emd_rubner(&baseSig, &curSig, NULL,NULL);
+  double d = emd_rubner(&baseSig, &curSig, NULL, NULL, Rf_asInteger(sExtra));
   
   return Rf_ScalarReal(d);
 }

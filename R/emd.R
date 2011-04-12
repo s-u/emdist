@@ -1,5 +1,5 @@
 # this was the original API but now we just map it to the matrix API
-emd2d <- function(A, B, xdist = 1, ydist = 1) {
+emd2d <- function(A, B, xdist = 1, ydist = 1, ...) {
   if (!is.matrix(A) || !is.matrix(B) || !identical(dim(A), dim(B))) stop("A and B must be matrices of the same dimensions")
   m = dim(A)[1]
   n = dim(B)[2]
@@ -10,7 +10,7 @@ emd2d <- function(A, B, xdist = 1, ydist = 1) {
   emd(A[A[,1] != 0,,drop=FALSE], B[B[,1] != 0,,drop=FALSE])
 }
 
-emdr <- function(A, B, ...) .Call("emd_r", A, B, PACKAGE="emd")
+emdr <- function(A, B, extrapolate=NA, flows=FALSE, ...) .Call("emd_r", A, B, extrapolate, flows, PACKAGE="emd")
 
 emd <- emdr
 

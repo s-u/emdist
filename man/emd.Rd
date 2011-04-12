@@ -13,14 +13,20 @@ use (weight,location) notation whereas \code{emd2d} compares two
 distributions over a grid represented as matrices.
 }
 \usage{
-emd(A, B, ...)
+emd(A, B, extrapolate=NA, flows=FALSE, ...)
 emdw(A, wA, B, wB, ...)
 emd2d(A, B, xdist = 1, ydist = 1)
-emdr(A, B, ...)
+emdr(A, B, extrapolate=NA, flows=FALSE, ...)
 }
 \arguments{
   \item{A}{matrix A}
   \item{B}{matrix B}
+  \item{extrapolate}{if set to 1 or 2 the mass of A or B respectively is
+    used to extrapolate the distance assuming the other signature is
+    truncated. It has any effect only if the other specified signature
+    has larger mass.}
+  \item{flows}{logical indicating whether flows should be returned
+    (currently unimplemented)}
   \item{wA}{weights for locations specified by A}
   \item{wB}{weights for locations specified by B}
   \item{xdist}{

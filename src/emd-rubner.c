@@ -90,7 +90,7 @@ static double _maxW;
 static float _maxC;
 
 /* DECLARATION OF FUNCTIONS */
-static float init(signature_t *Signature1, signature_t *Signature2);
+static float init(signature_t *Signature1, signature_t *Signature2, int extrapolate);
 static void findBasicVariables(node1_t *U, node1_t *V);
 static int isOptimal(node1_t *U, node1_t *V);
 static int findLoop(node2_t **Loop);
@@ -106,7 +106,7 @@ static void printSolution();
 
 /******************************************************************************
 float emd(signature_t *Signature1, signature_t *Signature2,
-	  float (*Dist)(feature_t *, feature_t *), flow_t *Flow, int *FlowSize)
+	  flow_t *Flow, int *FlowSize, int extrapolate)
   
 where
 
@@ -121,11 +121,16 @@ where
               If NULL, the flow is not returned.
    FlowSize   (Optional) Pointer to an integer where the number of elements in
               Flow will be stored
+
+   extrapolate  if set to 1 or 2 extrapolates the distance to the full mass
+              of 1 or 2 assuming truncated signature in the other sig. This has
+              any effect only if the mass of the other signature is larger
+
               
 ******************************************************************************/
 
 float emd_rubner(signature_t *Signature1, signature_t *Signature2,
-		 flow_t *Flow, int *FlowSize)
+		 flow_t *Flow, int *FlowSize, int extrapolate)
 {
   int itr;
   double totalCost;
@@ -134,7 +139,7 @@ float emd_rubner(signature_t *Signature1, signature_t *Signature2,
   flow_t *FlowP;
   node1_t U[MAX_SIG_SIZE1], V[MAX_SIG_SIZE1];
 
-  w = init(Signature1, Signature2);
+  w = init(Signature1, Signature2, extrapolate);
 
 #if DEBUG_LEVEL > 1
   Rprintf("\nINITIAL SOLUTION:\n");
@@ -207,7 +212,7 @@ float emd_rubner(signature_t *Signature1, signature_t *Signature2,
 /**********************
    init
 **********************/
-static float init(signature_t *Signature1, signature_t *Signature2)
+static float init(signature_t *Signature1, signature_t *Signature2, int extrapolate)
 {
   int i, j;
   double sSum, dSum, diff;
@@ -281,6 +286,8 @@ static float init(signature_t *Signature1, signature_t *Signature2)
 
   _EnterX = _EndX++;  /* AN EMPTY SLOT (ONLY _n1+_n2-1 BASIC VARIABLES) */
 
+  if (extrapolate == 1 && sSum > dSum) return dSum * dSum / sSum;
+  if (extrapolate == 2 && dSum > sSum) return sSum * sSum / dSum;
   return sSum > dSum ? dSum : sSum;
 }
 
