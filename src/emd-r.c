@@ -20,6 +20,8 @@ SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows) {
   sCur = Rf_coerceVector(sCur, REALSXP);
   double *baseVal = REAL(sBase);
   double *curVal = REAL(sCur);
+  flow_t *flows = NULL;
+  int n_flows = 0;
 
   if (baseCol != curCol) Rf_error("base and current sets must have the same dimensionality");
   if (baseCol < 2) Rf_error("at least two columns (weight and location) are required");
@@ -46,7 +48,34 @@ SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows) {
     curSig.Weights[i] = curVal[i];
   }
   
-  double d = emd_rubner(&baseSig, &curSig, NULL, NULL, Rf_asInteger(sExtra));
+  if (Rf_asLogical(sFlows) == TRUE) {
+      flows = malloc(sizeof(flow_t) * (baseRows + curRows - 1));
+      if (!flows)
+	  Rf_error("unable to allocate memory for flows");
+  }
+
+  double d = emd_rubner(&baseSig, &curSig, flows, flows ? &n_flows : NULL, Rf_asInteger(sExtra));
   
-  return Rf_ScalarReal(d);
+  if (!flows)
+      return Rf_ScalarReal(d);
+
+  SEXP res = PROTECT(Rf_ScalarReal(d));
+  SEXP fl = PROTECT(Rf_allocVector(VECSXP, 3)); /* must protect due to install() */
+  Rf_setAttrib(res, Rf_install("flows"), fl);
+  UNPROTECT(1);
+  SEXP f_from = Rf_allocVector(INTSXP, n_flows);  SET_VECTOR_ELT(fl, 0, f_from);
+  SEXP f_to   = Rf_allocVector(INTSXP, n_flows);  SET_VECTOR_ELT(fl, 1, f_to);
+  SEXP f_amt  = Rf_allocVector(REALSXP, n_flows); SET_VECTOR_ELT(fl, 2, f_amt);
+  int * i_from = INTEGER(f_from), * i_to = INTEGER(f_to);
+  double * r_amt = REAL(f_amt);
+  
+  for (i = 0; i < n_flows; i++) {
+      i_from[i] = flows[i].from;
+      i_to[i]   = flows[i].to;
+      r_amt[i]  = flows[i].amount;
+  }
+  free(flows);
+  
+  UNPROTECT(1);
+  return res;
 }

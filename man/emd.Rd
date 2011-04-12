@@ -10,23 +10,25 @@ Earth Mover's Distance
 \code{emd} computes Earth Mover's Distance (related to 1st Mallows and
 Wasserstein distances) between distributions. \code{emd} and \code{emdw}
 use (weight,location) notation whereas \code{emd2d} compares two
-distributions over a grid represented as matrices.
+distributions represented as matrices over a grid.
 }
 \usage{
-emd(A, B, extrapolate=NA, flows=FALSE, ...)
+emd(A, B, ...)
 emdw(A, wA, B, wB, ...)
-emd2d(A, B, xdist = 1, ydist = 1)
+emd2d(A, B, xdist = 1, ydist = 1, ...)
 emdr(A, B, extrapolate=NA, flows=FALSE, ...)
 }
 \arguments{
   \item{A}{matrix A}
   \item{B}{matrix B}
   \item{extrapolate}{if set to 1 or 2 the mass of A or B respectively is
-    used to extrapolate the distance assuming the other signature is
-    truncated. It has any effect only if the other specified signature
-    has larger mass.}
+    used to extrapolate the distance by penalization using the mass
+    quotient assuming the other signature is truncated and thus more
+    unlikely to match.
+    It has any effect only if the other specified signature has larger
+    mass.}
   \item{flows}{logical indicating whether flows should be returned
-    (currently unimplemented)}
+    in the \code{"flows"} attribute of the result.}
   \item{wA}{weights for locations specified by A}
   \item{wB}{weights for locations specified by B}
   \item{xdist}{
@@ -50,28 +52,25 @@ emdr(A, B, extrapolate=NA, flows=FALSE, ...)
   \code{emdw} separates the weights from the location matrices but is
   otherwise identical to \code{emd}.
   
-  Note that in all cases the weights are transformed to integers by a
-  multiplication with 1e6 since the underlying code is working on bin
-  counts. The implication is that weights cannot exceed approximately
-  the value of 2000 (which should have no real implications as the
-  weight should sum up to one!).
-
   \code{emdr} uses the original EMD implementation by Yossi Rubner
-  from Stanford instead of our internal code. It produces different
-  results for non-normalized signatures and also uses floats instead
-  doubles so expect some deviations from \code{emd} even for normalized
-  signatures.
+  from Stanford. In case \code{A} and \code{B} are not densities, the
+  weighted sum of flows is normalized by the smaller total mass of the
+  two. The version of the \code{emd} package released on CRAN
+  contains only this implementation and all other functions are just
+  front-ends for the call to \code{emdr}.
 }
 \value{
-  EMD of the distributions \code{A} and \code{B} (it is assumed that
-  each have the sum of 1).
+  Earth Mover's Distance between of the distributions \code{A} and \code{B}.
+  If \code{A} and \code{B} are not distributions then \code{A} is the
+  source and \code{B} is the target.
 }
 \author{
   R code by Simon Urbanek, EMD code by Yossi Rubner.
 }
 \note{
   This is an open-source version of the package which contains only the
-  implementation by Yossi Rubner.
+  implementation by Yossi Rubner. The distance on the ground space in
+  this version is fixed to be Euclidean.
 }
 \examples{
 A <- matrix(1:6 / sum(1:6), 2)

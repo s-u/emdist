@@ -12,6 +12,6 @@ emd2d <- function(A, B, xdist = 1, ydist = 1, ...) {
 
 emdr <- function(A, B, extrapolate=NA, flows=FALSE, ...) .Call("emd_r", A, B, extrapolate, flows, PACKAGE="emd")
 
-emd <- emdr
+emd <- function(A, B, ...) emdr(A, B, ...)
 
 emdw <- function(A, wA, B, wB, ...) emd(cbind(wA, A), cbind(wB, B), ...)
