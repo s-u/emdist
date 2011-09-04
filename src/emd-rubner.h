@@ -6,7 +6,7 @@
     Last update: 3/24/98
     Modified by Simon Urbanek: 2011/02/28
     - adapted to R interface
-    - add "extraporate" parameter allowing asymmetric extrapolation
+    - add "extrapolate" parameter allowing asymmetric extrapolation
 
     An implementation of the Earth Movers Distance.
     Based of the solution for the Transportation problem as described in
@@ -39,7 +39,9 @@
 
 
 /* DEFINITIONS */
-#define MAX_SIG_SIZE   100
+#ifndef MAX_SIG_SIZE
+#define MAX_SIG_SIZE   511
+#endif
 #define MAX_ITERATIONS 500
 #define EMD_INFINITY   1e20
 #define EPSILON        1e-6
