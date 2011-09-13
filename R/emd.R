@@ -10,8 +10,10 @@ emd2d <- function(A, B, xdist = 1, ydist = 1, ...) {
   emd(A[A[,1] != 0,,drop=FALSE], B[B[,1] != 0,,drop=FALSE])
 }
 
-emdr <- function(A, B, extrapolate=NA, flows=FALSE, ...) .Call("emd_r", A, B, extrapolate, flows, PACKAGE="emd")
+emdr <- function(A, B, extrapolate=NA, flows=FALSE, ...) .Call(.emd_r, A, B, extrapolate, flows)
 
 emd <- function(A, B, ...) emdr(A, B, ...)
 
 emdw <- function(A, wA, B, wB, ...) emd(cbind(wA, A), cbind(wB, B), ...)
+
+.onLoad <- function(libname, pkgname) assign(".emd_r", getNativeSymbolInfo("emd_r", PACKAGE=pkgname)$address, topenv())
