@@ -1,4 +1,4 @@
-Package: emd
+Package: emdist
 Version: 0.2-1
 Title: Earth Mover's Distance
 Author: Simon Urbanek <urbanek@research.att.com>, Yossi Rubner
