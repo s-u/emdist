@@ -16,7 +16,7 @@ distributions represented as matrices over a grid.
 emd(A, B, dist="euclidean", ...)
 emdw(A, wA, B, wB, dist="euclidean", ...)
 emd2d(A, B, xdist = 1, ydist = 1, dist="euclidean", ...)
-emdr(A, B, extrapolate=NA, dist="euclidean", flows=FALSE, ...)
+emdr(A, B, extrapolate=NA, flows=FALSE, dist="euclidean", ...)
 }
 \arguments{
   \item{A}{matrix A}
