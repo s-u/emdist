@@ -3,6 +3,8 @@
 
     Last update: 3/14/98
     Modified by Simon Urbanek: 2011/02/28
+    - added extrapolation support
+    - add pluggable cost computing functions
 
     An implementation of the Earth Movers Distance.
     Based of the solution for the Transportation problem as described in
@@ -90,7 +92,7 @@ static double _maxW;
 static float _maxC;
 
 /* DECLARATION OF FUNCTIONS */
-static float init(signature_t *Signature1, signature_t *Signature2, int extrapolate);
+static float init(signature_t *Signature1, signature_t *Signature2, int extrapolate, dist_fn_t *dfn);
 static void findBasicVariables(node1_t *U, node1_t *V);
 static int isOptimal(node1_t *U, node1_t *V);
 static int findLoop(node2_t **Loop);
@@ -106,7 +108,7 @@ static void printSolution();
 
 /******************************************************************************
 float emd(signature_t *Signature1, signature_t *Signature2,
-	  flow_t *Flow, int *FlowSize, int extrapolate)
+	  flow_t *Flow, int *FlowSize, int extrapolate, dist_fn_t *dfn)
   
 where
 
@@ -130,7 +132,7 @@ where
 ******************************************************************************/
 
 float emd_rubner(signature_t *Signature1, signature_t *Signature2,
-		 flow_t *Flow, int *FlowSize, int extrapolate)
+		 flow_t *Flow, int *FlowSize, int extrapolate, dist_fn_t *dfn)
 {
   int itr;
   double totalCost;
@@ -139,7 +141,7 @@ float emd_rubner(signature_t *Signature1, signature_t *Signature2,
   flow_t *FlowP;
   node1_t U[MAX_SIG_SIZE1], V[MAX_SIG_SIZE1];
 
-  w = init(Signature1, Signature2, extrapolate);
+  w = init(Signature1, Signature2, extrapolate, dfn);
 
 #if DEBUG_LEVEL > 1
   Rprintf("\nINITIAL SOLUTION:\n");
@@ -205,18 +207,96 @@ float emd_rubner(signature_t *Signature1, signature_t *Signature2,
   return (float)(totalCost / w);
 }
 
+/* BEGIN NEW.SU */
+static float dist_L2(feature_t *a, feature_t *b) {
+    float d = 0.0;
+    int i = 0;
+    while (i < FDIM) {
+	float s = a->loc[i] - b->loc[i];
+	d += s * s;
+	i++;
+    }
+    return sqrtf(d);
+}
 
+static float dist_L1(feature_t *a, feature_t *b) {
+    float d = 0.0;
+    int i = 0;
+    while (i < FDIM) {
+	float s = a->loc[i] - b->loc[i];
+	if (s > 0) 
+	    d += s;
+	else
+	    d -= s;
+	i++;
+    }
+    return d;
+}
+
+float calc_dist_L2(signature_t *Signature1, signature_t *Signature2) {
+    feature_t *P1, *P2;
+    float x = 0;
+    int i, j;
+    int n1 = Signature1->n, n2 = Signature2->n;
+    for(i = 0, P1 = Signature1->Features; i < n1; i++, P1++)
+	for(j = 0, P2 = Signature2->Features; j < n2; j++, P2++) 
+	    {
+		_C[i][j] = dist_L2(P1, P2);
+		if (_C[i][j] > x)
+		    x = _C[i][j];
+	    }
+    return x;
+}
+
+float calc_dist_L1(signature_t *Signature1, signature_t *Signature2) {
+    feature_t *P1, *P2;
+    float x = 0;
+    int i, j;
+    int n1 = Signature1->n, n2 = Signature2->n;
+    for(i = 0, P1 = Signature1->Features; i < n1; i++, P1++)
+	for(j = 0, P2 = Signature2->Features; j < n2; j++, P2++) 
+	    {
+		_C[i][j] = dist_L1(P1, P2);
+		if (_C[i][j] > x)
+		    x = _C[i][j];
+	    }
+    return x;
+}
+
+/* this is much slower since it involves function calls, but then it's more flexible ... */
+static dist_t *default_dist;
+
+void set_default_dist(dist_t *fn) {
+    default_dist = fn;
+}
+
+float calc_dist_default(signature_t *Signature1, signature_t *Signature2) {
+    feature_t *P1, *P2;
+    float x = 0;
+    int i, j;
+    int n1 = Signature1->n, n2 = Signature2->n;
+    for(i = 0, P1 = Signature1->Features; i < n1; i++, P1++)
+	for(j = 0, P2 = Signature2->Features; j < n2; j++, P2++) 
+	    {
+		_C[i][j] = default_dist(P1, P2);
+		if (_C[i][j] > x)
+		    x = _C[i][j];
+	    }
+    return x;
+}
+
+
+/* END NEW.SU */
 
 
 
 /**********************
    init
 **********************/
-static float init(signature_t *Signature1, signature_t *Signature2, int extrapolate)
+static float init(signature_t *Signature1, signature_t *Signature2, int extrapolate, dist_fn_t *dfn)
 {
   int i, j;
   double sSum, dSum, diff;
-  feature_t *P1, *P2;
   double S[MAX_SIG_SIZE1], D[MAX_SIG_SIZE1];
  
   _n1 = Signature1->n;
@@ -226,14 +306,7 @@ static float init(signature_t *Signature1, signature_t *Signature2, int extrapol
       Rf_error("emd: Signature size is limited to %d\n", MAX_SIG_SIZE);
   
   /* COMPUTE THE DISTANCE MATRIX */
-  _maxC = 0;
-  for(i=0, P1=Signature1->Features; i < _n1; i++, P1++)
-    for(j=0, P2=Signature2->Features; j < _n2; j++, P2++) 
-      {
-	_C[i][j] = Dist(P1, P2);
-	if (_C[i][j] > _maxC)
-	  _maxC = _C[i][j];
-      }
+  _maxC = dfn(Signature1, Signature2);
 	
   /* SUM UP THE SUPPLY AND DEMAND */
   sSum = 0.0;

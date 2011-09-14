@@ -1,0 +1,10 @@
+0.3-1	(under development)
+    o	make base distance modular with fast implementations of
+	"euclidean" and "manhattan". Allow arbitrary closures
+	as distances (much slower).
+
+
+0.2-1	2011-04-12
+    o	first open-source release based on Yossi Rubner's code
+	plus extrapolation (as used in our route matching paper)
+

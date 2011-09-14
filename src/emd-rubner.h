@@ -53,22 +53,6 @@ typedef struct
   float loc[FDIM];
 } feature_t;
 
-#if EMD_RUBNER_MAIN
-#include <math.h>
-
-/* we use static euclidian distance for speed */
-static float Dist(feature_t *a, feature_t *b) {
-  float d = 0.0;
-  int i = 0;
-  while (i < FDIM) {
-    float s = a->loc[i] - b->loc[i];
-    d += s * s;
-    i++;
-  }
-  return sqrtf(d);
-}
-#endif
-
 typedef struct
 {
   int n;                /* Number of features in the signature */
@@ -84,9 +68,21 @@ typedef struct
   float amount;         /* Amount of flow from "from" to "to" */
 } flow_t;
 
+/* NEW.SU - define a function that calculates all base distances between signatures */
+/*          calculates cost matrix _C and returns the maximum */
+typedef float (dist_fn_t)(signature_t *, signature_t *);
+/* a less-efficient method is to set default_dist and use calc_dist_default */
+typedef float (dist_t)(feature_t *, feature_t *);
 
+/* END.SU */
 
 float emd_rubner(signature_t *Signature1, signature_t *Signature2,
-		 flow_t *Flow, int *FlowSize, int extrapolate);
+		 flow_t *Flow, int *FlowSize, int extrapolate, dist_fn_t *dfn);
+
+float calc_dist_L2(signature_t *Signature1, signature_t *Signature2);
+float calc_dist_L1(signature_t *Signature1, signature_t *Signature2);
+float calc_dist_default(signature_t *Signature1, signature_t *Signature2);
+
+void set_default_dist(dist_t *fn);
 
 #endif

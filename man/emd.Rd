@@ -13,10 +13,10 @@ use (weight,location) notation whereas \code{emd2d} compares two
 distributions represented as matrices over a grid.
 }
 \usage{
-emd(A, B, ...)
-emdw(A, wA, B, wB, ...)
-emd2d(A, B, xdist = 1, ydist = 1, ...)
-emdr(A, B, extrapolate=NA, flows=FALSE, ...)
+emd(A, B, dist="euclidean", ...)
+emdw(A, wA, B, wB, dist="euclidean", ...)
+emd2d(A, B, xdist = 1, ydist = 1, dist="euclidean", ...)
+emdr(A, B, extrapolate=NA, dist="euclidean", flows=FALSE, ...)
 }
 \arguments{
   \item{A}{matrix A}
@@ -37,6 +37,11 @@ emdr(A, B, extrapolate=NA, flows=FALSE, ...)
   \item{ydist}{
     distance between rows (scalar) of a vector of positions of the rows
   }
+  \item{dist}{distance to be used for the computation of the cost over the
+    locations. Must be either \code{"euclidean"}, \code{"manhattan"} or
+    a closure taking two vectors and returning a scalar number. The
+    latter case is much less efficient because it requires R evaluation
+    for every possible combination of flows.}
   \item{...}{additional parameters for future use, currently unused}
 }
 \details{
@@ -69,8 +74,7 @@ emdr(A, B, extrapolate=NA, flows=FALSE, ...)
 }
 \note{
   This is an open-source version of the package which contains only the
-  implementation by Yossi Rubner. The distance on the ground space in
-  this version is fixed to be Euclidean.
+  implementation by Yossi Rubner.
 }
 \examples{
 A <- matrix(1:6 / sum(1:6), 2)
@@ -79,10 +83,17 @@ emd2d(A, B)
 # if we bring the rows closer, the distance will be reduced
 # since mass from the first row has to move down
 emd2d(A, B,, 0.1)
+
+# use Manhattan distance instead
+emd2d(A, B, dist="manhattan")
+# same, but using R-side closure
+emd2d(A, B, dist=function(x, y) sum(abs(x - y)))
+
 # the positions can overlap - this is a degenerate case of that
 emd2d(A, B, rep(0, 3), rep(0, 2))
 # and just a sanity check
 emd2d(A, A) + emd2d(B, B)
+
 # and the weight/location code should, hopefully have the same results
 A. <- matrix(c(1:6 / sum(1:6), 1,2,1,2,1,2, 1,1,2,2,3,3), 6)
 B. <- matrix(c(1, 2, 3), 1)

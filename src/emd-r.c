@@ -2,12 +2,31 @@
 #include "emd-rubner.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #define R_NO_REMAP 1
 #define USE_RINTERNALS 1
 #include <Rinternals.h>
 
-SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows) {
+static SEXP dist_clos, cf1, cf2; /* dist_clos is the closure, cf1/2 are cached vectors that we allocate only once and re-use */
+
+static float eval_dist(feature_t *f1, feature_t *f2) {
+    double *x = REAL(cf1), *y = REAL(cf2);
+    int i;
+    for (i = 0; i < FDIM; i++) {
+	x[i] = f1->loc[i];
+	y[i] = f2->loc[i];
+    }
+    SEXP res = Rf_eval(Rf_lang3(dist_clos, cf1, cf2), R_GlobalEnv);
+    if (TYPEOF(res) == INTSXP && LENGTH(res) == 1)
+	return (float) (INTEGER(res)[0]);
+    if (TYPEOF(res) != REALSXP || LENGTH(res) != 1)
+	Rf_error("invalid distance result - must be a numeric vector of length one");
+    return (float)(REAL(res)[0]);
+}
+
+
+SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows, SEXP sDist) {
   SEXP sBaseDim = Rf_getAttrib(sBase, R_DimSymbol);
   SEXP sCurDim = Rf_getAttrib(sCur, R_DimSymbol);
   if (sBaseDim == R_NilValue || LENGTH(sBaseDim) != 2) Rf_error("base must be a matrix");
@@ -16,6 +35,21 @@ SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows) {
   int *curDim = INTEGER(sCurDim);
   int baseRows = baseDim[0], baseCol = baseDim[1];
   int curRows = curDim[0], curCol = curDim[1];
+  if (TYPEOF(sDist) != CLOSXP && (TYPEOF(sDist) != STRSXP || LENGTH(sDist) != 1)) Rf_error("invalid distance specification");
+  const char *distName = (TYPEOF(sDist) == STRSXP) ? CHAR(STRING_ELT(sDist, 0)) : 0;
+  dist_fn_t *dist_fn = 0;
+  if (!distName) {
+      dist_fn = calc_dist_default;
+      set_default_dist(eval_dist);
+      dist_clos = sDist;
+      cf1 = PROTECT(Rf_allocVector(REALSXP, FDIM));
+      cf2 = PROTECT(Rf_allocVector(REALSXP, FDIM));
+  } else {
+      if (!strcmp(distName, "euclidean")) dist_fn = calc_dist_L2;
+      if (!strcmp(distName, "manhattan")) dist_fn = calc_dist_L1;
+  }
+  if (!dist_fn)
+      Rf_error("invalid distance specification");
   sBase = Rf_coerceVector(sBase, REALSXP);
   sCur = Rf_coerceVector(sCur, REALSXP);
   double *baseVal = REAL(sBase);
@@ -54,7 +88,10 @@ SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows) {
 	  Rf_error("unable to allocate memory for flows");
   }
 
-  double d = emd_rubner(&baseSig, &curSig, flows, flows ? &n_flows : NULL, Rf_asInteger(sExtra));
+  double d = emd_rubner(&baseSig, &curSig, flows, flows ? &n_flows : NULL, Rf_asInteger(sExtra), dist_fn);
+
+  if (!distName) /* cf1, cf2 */
+      UNPROTECT(2);
   
   if (!flows)
       return Rf_ScalarReal(d);
