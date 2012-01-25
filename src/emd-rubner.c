@@ -92,9 +92,13 @@ static void mem_free(void *m) {
     free(m);
 }
 
-#define SMALL_SIG 1024  /* signatures smaller than this are handled in
-			   static memory, for larger ones we'll need
-			   to perform memory allocation (slower) */
+#define SMALL_SIG 512  /* signatures smaller than this are handled in
+			  static memory, for larger ones we'll need
+			  to perform memory allocation (slower). It
+			  doesn't really make sense to make this too
+			  big, since longer signatures also take
+			  longer to compute so memory allocation is
+			  the lesser problem. */
 
 static node1_t local_U[SMALL_SIG], local_V[SMALL_SIG];
 
@@ -372,7 +376,7 @@ static float init(signature_t *Signature1, signature_t *Signature2, int extrapol
       Loop = (node2_t**) mem_alloc(sizeof(node2_t*) * max_sig * 2);
       _IsX = (char*) mem_alloc(max_sig * max_sig);
       _RowsX = (node2_t**) mem_alloc(sizeof(node2_t*) * max_sig * 2);
-      _ColsX = _ColsX + max_sig;
+      _ColsX = _RowsX + max_sig;
       IsUsed = (char*) mem_alloc(max_sig * 2);
       Delta = (double*) mem_alloc(sizeof(double) * max_sig * max_sig);
       Ur = (node1_t*) mem_alloc(sizeof(node1_t) * max_sig * 2);
