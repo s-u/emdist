@@ -3,6 +3,10 @@
 	"euclidean" and "manhattan". Allow arbitrary closures
 	as distances (much slower).
 
+    o	change the original code to use dynamically allocated
+	instead of the stack - this removes the arbitrary
+	limit of signature sizes.
+
 
 0.2-1	2011-04-12
     o	first open-source release based on Yossi Rubner's code
