@@ -4,7 +4,7 @@
 	as distances (much slower).
 
     o	change the original code to use dynamically allocated
-	instead of the stack - this removes the arbitrary
+	memory instead of the stack - this removes the arbitrary
 	limit of signature sizes.
 
 
