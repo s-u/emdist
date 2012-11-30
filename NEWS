@@ -1,4 +1,4 @@
-0.3-1	(under development)
+0.3-1	2012-11-30
     o	make base distance modular with fast implementations of
 	"euclidean" and "manhattan". Allow arbitrary closures
 	as distances (much slower).
