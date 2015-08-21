@@ -7,6 +7,7 @@
     Modified by Simon Urbanek: 2011/02/28
     - adapted to R interface
     - add "extrapolate" parameter allowing asymmetric extrapolation
+    - make MAX_ITERATIONS a parameter
 
     An implementation of the Earth Movers Distance.
     Based of the solution for the Transportation problem as described in
@@ -42,7 +43,6 @@
 #ifndef MAX_SIG_SIZE
 #define MAX_SIG_SIZE   511
 #endif
-#define MAX_ITERATIONS 500
 #define EMD_INFINITY   1e20
 #define EPSILON        1e-6
 
@@ -77,7 +77,8 @@ typedef float (dist_t)(feature_t *, feature_t *);
 /* END.SU */
 
 float emd_rubner(signature_t *Signature1, signature_t *Signature2,
-		 flow_t *Flow, int *FlowSize, int extrapolate, dist_fn_t *dfn);
+		 flow_t *Flow, int *FlowSize, int extrapolate, dist_fn_t *dfn,
+		 int maxIter);
 
 float calc_dist_L2(signature_t *Signature1, signature_t *Signature2);
 float calc_dist_L1(signature_t *Signature1, signature_t *Signature2);

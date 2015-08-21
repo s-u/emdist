@@ -26,7 +26,7 @@ static float eval_dist(feature_t *f1, feature_t *f2) {
 }
 
 
-SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows, SEXP sDist) {
+SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows, SEXP sDist, SEXP sMaxIter) {
   SEXP sBaseDim = Rf_getAttrib(sBase, R_DimSymbol);
   SEXP sCurDim = Rf_getAttrib(sCur, R_DimSymbol);
   if (sBaseDim == R_NilValue || LENGTH(sBaseDim) != 2) Rf_error("base must be a matrix");
@@ -35,6 +35,7 @@ SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows, SEXP sDist) {
   int *curDim = INTEGER(sCurDim);
   int baseRows = baseDim[0], baseCol = baseDim[1];
   int curRows = curDim[0], curCol = curDim[1];
+  int maxIter = Rf_asInteger(sMaxIter);
   if (TYPEOF(sDist) != CLOSXP && (TYPEOF(sDist) != STRSXP || LENGTH(sDist) != 1)) Rf_error("invalid distance specification");
   const char *distName = (TYPEOF(sDist) == STRSXP) ? CHAR(STRING_ELT(sDist, 0)) : 0;
   dist_fn_t *dist_fn = 0;
@@ -50,6 +51,7 @@ SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows, SEXP sDist) {
   }
   if (!dist_fn)
       Rf_error("invalid distance specification");
+  if (maxIter < 1) maxIter = 10000; /* somewhat random... */
   sBase = Rf_coerceVector(sBase, REALSXP);
   sCur = Rf_coerceVector(sCur, REALSXP);
   double *baseVal = REAL(sBase);
@@ -88,7 +90,7 @@ SEXP emd_r(SEXP sBase, SEXP sCur, SEXP sExtra, SEXP sFlows, SEXP sDist) {
 	  Rf_error("unable to allocate memory for flows");
   }
 
-  double d = emd_rubner(&baseSig, &curSig, flows, flows ? &n_flows : NULL, Rf_asInteger(sExtra), dist_fn);
+  double d = emd_rubner(&baseSig, &curSig, flows, flows ? &n_flows : NULL, Rf_asInteger(sExtra), dist_fn, maxIter);
 
   if (!distName) /* cf1, cf2 */
       UNPROTECT(2);

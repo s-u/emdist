@@ -8,6 +8,8 @@
     Modified by Simon Urbanek: 2011/02/28
     - changed code to use dynamically allocated structures
       in order to remove the limit on signature sizes    
+    Modified by Simon Urbanek: 2015/08/21
+    - make MAX_ITERATIONS a parameter (=configurable)
 
     An implementation of the Earth Movers Distance.
     Based of the solution for the Transportation problem as described in
@@ -185,7 +187,8 @@ where
 ******************************************************************************/
 
 float emd_rubner(signature_t *Signature1, signature_t *Signature2,
-		 flow_t *Flow, int *FlowSize, int extrapolate, dist_fn_t *dfn)
+		 flow_t *Flow, int *FlowSize, int extrapolate, dist_fn_t *dfn,
+		 int maxIter)
 {
   int itr;
   double totalCost;
@@ -208,7 +211,7 @@ float emd_rubner(signature_t *Signature1, signature_t *Signature2,
  
   if (_n1 > 1 && _n2 > 1)  /* IF _n1 = 1 OR _n2 = 1 THEN WE ARE DONE */
     {
-      for (itr = 1; itr < MAX_ITERATIONS; itr++)
+      for (itr = 1; itr < maxIter; itr++)
 	{
 	  /* FIND BASIC VARIABLES */
 	  findBasicVariables(U, V);
@@ -226,9 +229,9 @@ float emd_rubner(signature_t *Signature1, signature_t *Signature2,
 #endif
 	}
 
-      if (itr == MAX_ITERATIONS)
+      if (itr == maxIter)
 	Rf_warning("emd: Maximum number of iterations has been reached (%d)",
-		MAX_ITERATIONS);
+		maxIter);
     }
 
   /* COMPUTE THE TOTAL FLOW */

@@ -16,7 +16,7 @@ distributions represented as matrices over a grid.
 emd(A, B, dist="euclidean", ...)
 emdw(A, wA, B, wB, dist="euclidean", ...)
 emd2d(A, B, xdist = 1, ydist = 1, dist="euclidean", ...)
-emdr(A, B, extrapolate=NA, flows=FALSE, dist="euclidean", ...)
+emdr(A, B, extrapolate=NA, flows=FALSE, dist="euclidean", max.iter=500, ...)
 }
 \arguments{
   \item{A}{matrix A}
@@ -42,7 +42,11 @@ emdr(A, B, extrapolate=NA, flows=FALSE, dist="euclidean", ...)
     a closure taking two vectors and returning a scalar number. The
     latter case is much less efficient because it requires R evaluation
     for every possible combination of flows.}
-  \item{...}{additional parameters for future use, currently unused}
+  \item{max.iter}{maximum number of iterations to use. If reached,
+    a warning is issued and the optimalization is stopped, returning the
+    result reached so far which may not be optimal.}
+  \item{...}{additional parameters passed to \code{emdr}, this includes
+    \code{max.iter}, for example}
 }
 \details{
   \code{emd2d} interprets the two matrices \code{A} and \code{B} as

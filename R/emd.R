@@ -10,7 +10,7 @@ emd2d <- function(A, B, xdist = 1, ydist = 1, dist="euclidean", ...) {
   emd(A[A[,1] != 0,,drop=FALSE], B[B[,1] != 0,,drop=FALSE], dist=dist, ...)
 }
 
-emdr <- function(A, B, extrapolate=NA, flows=FALSE, dist="euclidean", ...) .Call(.emd_r, A, B, extrapolate, flows, dist)
+emdr <- function(A, B, extrapolate=NA, flows=FALSE, dist="euclidean", max.iter=500L, ...) .Call(.emd_r, A, B, extrapolate, flows, dist, max.iter)
 
 emd <- function(A, B, dist="euclidean", ...) emdr(A, B, dist=dist, ...)
 
