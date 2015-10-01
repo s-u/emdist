@@ -46,7 +46,9 @@
 #define EMD_INFINITY   1e20
 #define EPSILON        1e-6
 
+#ifndef FDIM
 #define FDIM  4
+#endif
 
 typedef struct
 {
