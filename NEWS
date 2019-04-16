@@ -1,8 +1,11 @@
-0.3-2	(under development)
+0.3-2	2019-04-16
     o	make maximum number of iterations a configurable option
 
     o	allow override of FDIM at compile-time if more than 4
 	dimensions are required; e.g.: PKG_CPPFLAGS=-DFDIM=10
+
+    o	fix eval() protection bug when custom distance function
+	is used (thanks to Tomáš Kalibera)
 
 
 0.3-1	2012-11-30

@@ -17,7 +17,8 @@ static float eval_dist(feature_t *f1, feature_t *f2) {
 	x[i] = f1->loc[i];
 	y[i] = f2->loc[i];
     }
-    SEXP res = Rf_eval(Rf_lang3(dist_clos, cf1, cf2), R_GlobalEnv);
+    SEXP res = Rf_eval(PROTECT(Rf_lang3(dist_clos, cf1, cf2)), R_GlobalEnv);
+    UNPROTECT(1);
     if (TYPEOF(res) == INTSXP && LENGTH(res) == 1)
 	return (float) (INTEGER(res)[0]);
     if (TYPEOF(res) != REALSXP || LENGTH(res) != 1)
