@@ -1,2 +1,2 @@
-useDynLib(emdist)
+useDynLib(emdist, emd_r)
 export(emd, emdw, emd2d, emdr)
