@@ -1,3 +1,7 @@
+0.3-3	2023-06-13
+    o	silence strict prototype C warnings
+
+
 0.3-2	2019-04-16
     o	make maximum number of iterations a configurable option
 
