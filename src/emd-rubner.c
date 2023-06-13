@@ -140,17 +140,17 @@ static float init(signature_t *Signature1, signature_t *Signature2, int extrapol
 static void findBasicVariables(node1_t *U, node1_t *V);
 static int isOptimal(node1_t *U, node1_t *V);
 static int findLoop(node2_t **Loop);
-static void newSol();
+static void newSol(void);
 static void russel(double *S, double *D);
 static void addBasicVariable(int minI, int minJ, double *S, double *D, 
 			     node1_t *PrevUMinI, node1_t *PrevVMinJ,
 			     node1_t *UHead);
 #if DEBUG_LEVEL > 0
-static void printSolution();
+static void printSolution(void);
 #endif
 
 
-static void free_globals() {
+static void free_globals(void) {
   if (_C != local_C) mem_free(_C);
   if (_X != local_X) mem_free(_X);
   if (_IsX != local_IsX) mem_free(_IsX);
@@ -637,7 +637,7 @@ static int isOptimal(node1_t *U, node1_t *V)
 /**********************
     newSol
 **********************/
-static void newSol()
+static void newSol(void)
 {
     int i, j, k;
     double xMin;
@@ -1016,7 +1016,7 @@ static void addBasicVariable(int minI, int minJ, double *S, double *D,
 /**********************
     printSolution
 **********************/
-static void printSolution()
+static void printSolution(void)
 {
   node2_t *P;
   double totalCost;
